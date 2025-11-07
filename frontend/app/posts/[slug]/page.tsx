@@ -5,13 +5,28 @@
 
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getPost } from '@/lib/strapi';
+import { draftMode } from 'next/headers';
+import { getPost, getPostPreview } from '@/lib/strapi';
 import { format } from 'date-fns';
 import { marked } from 'marked';
 
-export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function PostPage({ 
+  params,
+  searchParams 
+}: { 
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ preview?: string }>;
+}) {
   const { slug } = await params;
-  const post = await getPost(slug);
+  const search = await searchParams;
+  const { isEnabled: isDraftMode } = await draftMode();
+  
+  // Use preview mode if draft mode is enabled or preview param is present
+  const isPreview = isDraftMode || search.preview === 'true';
+  
+  const post = isPreview 
+    ? await getPostPreview(slug, true)
+    : await getPost(slug);
 
   if (!post) {
     notFound();
@@ -20,65 +35,71 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   const contentHtml = await marked(post.content || '');
 
   return (
-    <>
-      <Link href="/" className="govuk-back-link">
-        Back to all posts
-      </Link>
-
-      <div className="govuk-grid-row">
-        <div className="govuk-grid-column-two-thirds">
-          <span className="govuk-caption-xl">
-            {post.service?.title || 'Design History'}
-          </span>
-          <h1 className="govuk-heading-xl">{post.title}</h1>
-
-          <p className="govuk-body-l">{post.description}</p>
-
-          <dl className="govuk-summary-list">
-            <div className="govuk-summary-list__row">
-              <dt className="govuk-summary-list__key">Published</dt>
-              <dd className="govuk-summary-list__value">
-                {post.publishDate && format(new Date(post.publishDate), 'd MMMM yyyy')}
-              </dd>
-            </div>
-            {post.author && (
-              <div className="govuk-summary-list__row">
-                <dt className="govuk-summary-list__key">Author</dt>
-                <dd className="govuk-summary-list__value">{post.author}</dd>
-              </div>
-            )}
-            {post.service && (
-              <div className="govuk-summary-list__row">
-                <dt className="govuk-summary-list__key">Service</dt>
-                <dd className="govuk-summary-list__value">
-                  {post.service.title}
-                </dd>
-              </div>
-            )}
-            {post.tags && post.tags.length > 0 && (
-              <div className="govuk-summary-list__row">
-                <dt className="govuk-summary-list__key">Tags</dt>
-                <dd className="govuk-summary-list__value">
-                  {post.tags.map((tag: any, index: number) => (
-                    <span key={tag.id}>
-                      {tag.name}
-                      {index < post.tags.length - 1 && ', '}
-                    </span>
-                  ))}
-                </dd>
-              </div>
-            )}
-          </dl>
-
-          <hr className="govuk-section-break govuk-section-break--xl govuk-section-break--visible" />
-
-          <div 
-            className="post-content govuk-body" 
-            dangerouslySetInnerHTML={{ __html: contentHtml }}
-          />
-        </div>
+    <div className="govuk-width-container">
+      <div className="govuk-breadcrumbs">
+        <ol className="govuk-breadcrumbs__list">
+          <li className="govuk-breadcrumbs__list-item">
+            <Link className="govuk-breadcrumbs__link" href="/">
+              Home
+            </Link>
+          </li>
+          {post.service && post.service.data && (
+            <li className="govuk-breadcrumbs__list-item">
+              <Link className="govuk-breadcrumbs__link" href="/">
+                {post.service.data.attributes.title}
+              </Link>
+            </li>
+          )}
+          <li className="govuk-breadcrumbs__list-item" aria-current="page">
+            {post.heading}
+          </li>
+        </ol>
       </div>
-    </>
+
+      <main className="govuk-main-wrapper" id="main-content" role="main">
+        <div className="govuk-grid-row">
+          <div className="govuk-grid-column-two-thirds">
+            <h1 className="govuk-heading-xl">{post.heading}</h1>
+
+            <p className="govuk-body-l dh-lede">{post.description}</p>
+
+            <p className="govuk-body-s dh-post-meta">
+              {post.author && (
+                <>
+                  <span className="dh-post-meta__author">By {post.author}</span>
+                  <br />
+                </>
+              )}
+              Last updated: {post.publishDate && format(new Date(post.publishDate), 'd MMMM yyyy')}
+            </p>
+
+            <hr className="govuk-section-break govuk-section-break--m govuk-section-break--visible" />
+
+            <div 
+              className="dh-post-content" 
+              dangerouslySetInnerHTML={{ __html: contentHtml }}
+            />
+
+            <hr className="govuk-section-break govuk-section-break--l govuk-section-break--visible" />
+
+            {/* Tags section */}
+            {post.tags && (Array.isArray(post.tags) ? post.tags : post.tags.data)?.length > 0 && (
+              <div className="dh-tags">
+                <h2 className="govuk-heading-s">Tags</h2>
+                <ul className="dh-tags__list">
+                  {(Array.isArray(post.tags) ? post.tags : post.tags.data).map((tag: any) => (
+                    <li key={tag.id} className="dh-tags__item">
+                      {tag.attributes?.name || tag.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
+    </div>
   );
 }
+
 

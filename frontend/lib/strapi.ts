@@ -19,7 +19,8 @@ interface StrapiResponse<T> {
 
 export async function fetchAPI<T>(
   path: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  draft: boolean = false
 ): Promise<T> {
   const url = `${STRAPI_URL}/api${path}`;
   
@@ -29,7 +30,8 @@ export async function fetchAPI<T>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
-    next: { revalidate: 60 }, // Revalidate every 60 seconds
+    next: draft ? { revalidate: 0 } : { revalidate: 60 }, // No cache in draft mode
+    cache: draft ? 'no-store' : 'default',
   });
 
   if (!response.ok) {
@@ -39,18 +41,40 @@ export async function fetchAPI<T>(
   return response.json();
 }
 
+export async function getPostPreview(slug: string, isDraft: boolean = false) {
+  const statusParam = isDraft ? '&publicationState=preview' : '';
+  const response = await fetchAPI<StrapiResponse<any[]>>(
+    `/posts?filters[slug][$eq]=${slug}&populate=*${statusParam}`,
+    {},
+    isDraft
+  );
+  const post = response.data[0];
+  if (post) {
+    post.title = post.Guidance || post.title;
+  }
+  return post;
+}
+
 export async function getPosts() {
   const response = await fetchAPI<StrapiResponse<any[]>>(
     '/posts?populate=*&sort=publishDate:desc'
   );
-  return response.data;
+  // Map Guidance field to title for display
+  return response.data.map((post: any) => ({
+    ...post,
+    title: post.Guidance || post.title,
+  }));
 }
 
 export async function getPost(slug: string) {
   const response = await fetchAPI<StrapiResponse<any[]>>(
     `/posts?filters[slug][$eq]=${slug}&populate=*`
   );
-  return response.data[0];
+  const post = response.data[0];
+  if (post) {
+    post.title = post.Guidance || post.title;
+  }
+  return post;
 }
 
 export async function getTeams() {
@@ -80,4 +104,5 @@ export async function getTeamPosts(teamSlug: string) {
   );
   return response.data;
 }
+
 

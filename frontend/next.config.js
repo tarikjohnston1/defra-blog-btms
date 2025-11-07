@@ -11,7 +11,26 @@ const nextConfig = {
       },
     ];
   },
+  async headers() {
+    return [
+      {
+        // Allow embedding in Strapi admin panel iframe
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "frame-ancestors 'self' http://localhost:1337 https://localhost:1337",
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'ALLOW-FROM http://localhost:1337',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;
+
 

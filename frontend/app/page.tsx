@@ -20,67 +20,84 @@ export default async function Home() {
 
   return (
     <>
-      <h1 className="govuk-heading-xl">Design Histories</h1>
-      
-      <p className="govuk-body-l">
-        Design histories document the design decisions made during the development of DEFRA digital services.
-      </p>
-
-      <div className="govuk-inset-text">
-        <p>
-          This is a design history platform for DEFRA teams to share their design work, 
-          iterations, and decisions in the open.
-        </p>
+      {/* Blue hero section */}
+      <div className="dh-hero">
+        <div className="govuk-width-container">
+          <h1 className="govuk-heading-xl dh-hero__heading">BTMS News and Guidance</h1>
+          
+          <p className="govuk-body-l dh-hero__description">
+            Stay up to date with the latest news, updates and guidance for the Border Trade Matching Service (BTMS).
+          </p>
+        </div>
       </div>
 
-      {error && (
-        <div className="govuk-error-summary" role="alert">
-          <h2 className="govuk-error-summary__title">
-            There is a problem
-          </h2>
-          <div className="govuk-error-summary__body">
-            <p>{error}</p>
-            <p>To get started:</p>
-            <ol className="govuk-list govuk-list--number">
-              <li>Start Strapi: <code>cd backend && npm run develop</code></li>
-              <li>Create your first admin user at http://localhost:1337/admin</li>
-              <li>Configure API permissions in Settings → Roles → Public</li>
-              <li>Add some content in Content Manager</li>
-            </ol>
-          </div>
-        </div>
-      )}
+      {/* Main content section */}
+      <div className="govuk-width-container">
+        <main className="govuk-main-wrapper" id="main-content" role="main">
+          {error && (
+            <div className="govuk-error-summary" role="alert">
+              <h2 className="govuk-error-summary__title">
+                There is a problem
+              </h2>
+              <div className="govuk-error-summary__body">
+                <p>{error}</p>
+                <p>To get started:</p>
+                <ol className="govuk-list govuk-list--number">
+                  <li>Start Strapi: <code>cd backend && npm run develop</code></li>
+                  <li>Create your first admin user at http://localhost:1337/admin</li>
+                  <li>Configure API permissions in Settings → Roles → Public</li>
+                  <li>Add some content in Content Manager</li>
+                </ol>
+              </div>
+            </div>
+          )}
 
-      {posts.length > 0 ? (
-        <>
-          <h2 className="govuk-heading-l">Latest posts</h2>
-          <ul className="post-list">
-            {posts.map((post: any) => (
-              <li key={post.id} className="post-list__item">
-                <h3 className="govuk-heading-m post-list__title">
-                  <Link 
-                    href={`/posts/${post.slug}`}
-                    className="govuk-link"
-                  >
-                    {post.title}
-                  </Link>
-                </h3>
-                <p className="post-list__meta">
-                  {post.publishDate && format(new Date(post.publishDate), 'd MMMM yyyy')}
-                  {post.service?.title && ` • ${post.service.title}`}
-                  {post.author && ` • by ${post.author}`}
-                </p>
-                <p className="govuk-body">{post.description}</p>
-              </li>
-            ))}
-          </ul>
-        </>
-      ) : !error && (
-        <div className="govuk-inset-text">
-          <p>No posts yet. Log in to Strapi to create your first post.</p>
-        </div>
-      )}
+          {posts.length > 0 ? (
+            <>
+              <h2 className="govuk-heading-l">Recent posts</h2>
+              <div className="dh-posts">
+                {posts.map((post: any, index: number) => (
+                  <div key={post.id}>
+                    <article className="dh-post-card">
+                      <h3 className="govuk-heading-m dh-post-card__title">
+                        <Link 
+                          href={`/posts/${post.slug}`}
+                          className="govuk-link"
+                        >
+                          {post.heading}
+                        </Link>
+                      </h3>
+                      <p className="govuk-body dh-post-card__description">{post.description}</p>
+                      <p className="govuk-body-s dh-post-card__meta">
+                        {post.service?.data?.attributes?.title && (
+                          <>
+                            <span className="dh-post-card__service-name">{post.service.data.attributes.title}</span>
+                            <br />
+                          </>
+                        )}
+                        {post.publishDate && (
+                          <time className="dh-post-card__date">
+                            {format(new Date(post.publishDate), 'd MMMM yyyy')}
+                          </time>
+                        )}
+                      </p>
+                    </article>
+                    {index < posts.length - 1 && (
+                      <hr className="govuk-section-break govuk-section-break--visible" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : !error && (
+            <div className="govuk-inset-text">
+              <p>No updates yet. Check back soon for the latest BTMS news and guidance.</p>
+            </div>
+          )}
+        </main>
+      </div>
     </>
   );
 }
+
 

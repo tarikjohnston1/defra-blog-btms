@@ -1,227 +1,241 @@
-# Deployment Guide
+# BTMS News & Guidance - Deployment Guide
 
-This guide covers deploying your DEFRA Design History system to production.
+This guide will help you deploy your BTMS blog for FREE using Vercel (Frontend) and Railway (Backend).
 
-## 🏗️ Architecture Overview
+## Overview
 
-```
-┌─────────────┐         ┌──────────────┐         ┌─────────────┐
-│   Content   │ ───────>│    Strapi    │<────────│   Next.js   │
-│  Designers  │         │     CMS      │         │   Frontend  │
-│             │         │  (Backend)   │         │             │
-└─────────────┘         └──────────────┘         └─────────────┘
-                               │                        │
-                               ▼                        ▼
-                        ┌──────────────┐         ┌─────────────┐
-                        │  PostgreSQL  │         │   Vercel    │
-                        │   Database   │         │   Hosting   │
-                        └──────────────┘         └─────────────┘
-```
+- **Frontend (Next.js)**: Deploy to Vercel - FREE forever
+- **Backend (Strapi CMS)**: Deploy to Railway - FREE $5/month credit
+- **Database**: PostgreSQL on Railway - FREE (included)
+- **Total Cost**: $0-5/month
 
-## 🎯 Recommended Setup
+---
 
-### Backend: Strapi Cloud (Easiest)
+## Prerequisites
 
-**Why?**
-- Managed Strapi hosting
-- Includes database
-- Automatic SSL
-- Easy to set up
-- Free tier available
+Before you begin, make sure you have:
 
-**Steps:**
+- [ ] GitHub account
+- [ ] Vercel account (free - sign up at vercel.com)
+- [ ] Railway account (free - sign up at railway.app)
+- [ ] Your code pushed to GitHub
 
-1. Sign up at https://cloud.strapi.io/
-2. Create new project
-3. Connect your GitHub repository (backend folder)
-4. Set environment variables
-5. Deploy
+---
 
-**Pricing:** Free tier → $99/month for production
+## Part 1: Push Your Code to GitHub
 
-**Alternative:** Railway, Render, or DigitalOcean App Platform
-
-### Frontend: Vercel (Easiest)
-
-**Why?**
-- Built for Next.js
-- Automatic deployments
-- Global CDN
-- Free tier available
-- SSL included
-
-**Steps:**
-
-1. Sign up at https://vercel.com
-2. Import your GitHub repository
-3. Set root directory to `frontend`
-4. Add environment variable: `NEXT_PUBLIC_STRAPI_URL` (your Strapi URL)
-5. Deploy
-
-**Pricing:** Free for hobby projects → $20/month for team
-
-**Alternative:** Netlify, AWS Amplify, or Cloudflare Pages
-
-## 📋 Pre-Deployment Checklist
-
-### Backend (Strapi)
-
-- [ ] Change database from SQLite to PostgreSQL
-- [ ] Set production environment variables
-- [ ] Review and set API permissions
-- [ ] Configure CORS for your frontend domain
-- [ ] Set up regular database backups
-- [ ] Change admin panel password
-- [ ] Enable rate limiting
-- [ ] Configure email provider (for notifications)
-
-### Frontend (Next.js)
-
-- [ ] Set `NEXT_PUBLIC_STRAPI_URL` to production Strapi URL
-- [ ] Test build locally (`npm run build`)
-- [ ] Enable analytics if needed
-- [ ] Test all routes
-- [ ] Check image optimization settings
-
-## 🔐 Environment Variables
-
-### Backend (Strapi)
-
-Create a `.env` file in `backend/`:
+If you haven't already pushed your code to GitHub:
 
 ```bash
-# Server
-HOST=0.0.0.0
-PORT=1337
-APP_KEYS=generate-random-key-1,generate-random-key-2,generate-random-key-3,generate-random-key-4
-API_TOKEN_SALT=generate-random-salt
-ADMIN_JWT_SECRET=generate-random-secret
-TRANSFER_TOKEN_SALT=generate-random-salt
-JWT_SECRET=generate-random-secret
+# 1. Navigate to your project
+cd /Users/Personal/Documents/GitHub/defra-blog-btms
 
-# Database (PostgreSQL)
-DATABASE_CLIENT=postgres
-DATABASE_HOST=your-db-host
-DATABASE_PORT=5432
-DATABASE_NAME=your-db-name
-DATABASE_USERNAME=your-db-user
-DATABASE_PASSWORD=your-db-password
-DATABASE_SSL=true
+# 2. Create a new repository on GitHub
+# Go to github.com → New Repository → Name it "btms-news-blog"
 
-# URL
-URL=https://your-strapi-domain.com
-
-# CORS
-# Add your frontend URL
+# 3. Initialize and push
+git init
+git add .
+git commit -m "Initial commit: BTMS news and guidance blog"
+git branch -M main
+git remote add origin https://github.com/YOUR_USERNAME/btms-news-blog.git
+git push -u origin main
 ```
 
-**Generate secrets:**
-```bash
-# Generate random strings for secrets
-openssl rand -base64 32
+---
+
+## Part 2: Deploy Backend to Railway (Strapi CMS)
+
+### Step 1: Create Railway Account
+1. Go to https://railway.app
+2. Click "Login with GitHub"
+3. Authorize Railway to access your repositories
+
+### Step 2: Create New Project
+1. Click "New Project"
+2. Select "Deploy from GitHub repo"
+3. Choose your `btms-news-blog` repository
+4. Railway will detect it contains a Node.js project
+
+### Step 3: Configure Backend
+1. Click on your deployed service
+2. Go to "Settings" tab
+3. Set the following:
+
+**Root Directory**: 
+```
+backend
 ```
 
-### Frontend (Next.js)
-
-Create `.env.production`:
-
-```bash
-NEXT_PUBLIC_STRAPI_URL=https://your-strapi-domain.com
+**Build Command**:
+```
+npm install && npm run build
 ```
 
-## 🗄️ Database Migration
-
-### From SQLite to PostgreSQL
-
-1. **Set up PostgreSQL database:**
-   - Use managed service (Heroku Postgres, AWS RDS, DigitalOcean Managed DB)
-   - Or install PostgreSQL on your server
-
-2. **Update Strapi config:**
-
-Install PostgreSQL client:
-```bash
-cd backend
-npm install pg
+**Start Command**:
 ```
-
-3. **Update `.env` with PostgreSQL credentials** (see above)
-
-4. **Run migration:**
-```bash
-cd backend
-npm run build
 npm run start
 ```
 
-5. **Verify:** Log in to admin panel and check everything works
+**Install Command**:
+```
+npm install
+```
 
-## 🚀 Deployment Options
+### Step 4: Add PostgreSQL Database
+1. In your Railway project, click "+ New"
+2. Select "Database" → "PostgreSQL"
+3. Railway will automatically create the database
 
-### Option 1: Strapi Cloud + Vercel (Recommended)
+### Step 5: Configure Environment Variables
+1. Click on your Strapi service (not the database)
+2. Go to "Variables" tab
+3. Add the following variables:
 
-**Total cost:** Free tier (testing) or ~$119/month (production)
+```bash
+NODE_ENV=production
+DATABASE_CLIENT=postgres
 
-**Steps:**
+# Railway will automatically provide these database variables:
+# PGHOST
+# PGPORT
+# PGUSER
+# PGPASSWORD
+# PGDATABASE
 
-1. **Deploy Strapi to Strapi Cloud:**
-   - Go to https://cloud.strapi.io/
-   - Create new project
-   - Connect GitHub repo
-   - Deploy
+# Add these additional variables:
+HOST=0.0.0.0
+PORT=8080
 
-2. **Deploy Frontend to Vercel:**
-   - Go to https://vercel.com
-   - Import GitHub repo
-   - Set root directory: `frontend`
-   - Add env var: `NEXT_PUBLIC_STRAPI_URL`
-   - Deploy
+# Generate a random secret key (keep it secure!)
+APP_KEYS=<generate-random-string>
+API_TOKEN_SALT=<generate-random-string>
+ADMIN_JWT_SECRET=<generate-random-string>
+TRANSFER_TOKEN_SALT=<generate-random-string>
+JWT_SECRET=<generate-random-string>
+```
 
-3. **Configure Strapi CORS:**
-   - In Strapi admin, go to Settings → CORS
-   - Add your Vercel domain
+**To generate random strings**, run this in your terminal:
+```bash
+node -e "console.log(require('crypto').randomBytes(16).toString('base64'))"
+```
 
-### Option 2: Railway (All-in-One)
+Run this command 5 times to get 5 different secrets for each variable.
 
-**Total cost:** ~$20-40/month
+### Step 6: Update Database Configuration
 
-**Steps:**
+In your local project, update `backend/config/database.js`:
 
-1. Sign up at https://railway.app
-2. Create PostgreSQL database
-3. Deploy Strapi backend
-4. Deploy Next.js frontend
-5. Configure environment variables
+```javascript
+// backend/config/database.js
+module.exports = ({ env }) => {
+  if (env('NODE_ENV') === 'production') {
+    return {
+      connection: {
+        client: 'postgres',
+        connection: {
+          host: env('PGHOST'),
+          port: env.int('PGPORT'),
+          database: env('PGDATABASE'),
+          user: env('PGUSER'),
+          password: env('PGPASSWORD'),
+          ssl: {
+            rejectUnauthorized: false
+          },
+        },
+        debug: false,
+      },
+    };
+  } else {
+    // Local development (SQLite)
+    return {
+      connection: {
+        client: 'sqlite',
+        connection: {
+          filename: path.join(__dirname, '..', '..', '.tmp/data.db'),
+        },
+        useNullAsDefault: true,
+      },
+    };
+  }
+};
+```
 
-### Option 3: Self-Hosted (Advanced)
+### Step 7: Deploy
+1. Commit and push the database config change:
+```bash
+git add backend/config/database.js
+git commit -m "Add production database configuration"
+git push origin main
+```
 
-**Requirements:**
-- Linux server (Ubuntu 22.04+)
-- Node.js v18-v22
-- PostgreSQL
-- Nginx
-- SSL certificate (Let's Encrypt)
+2. Railway will automatically redeploy
+3. Wait for deployment to complete (3-5 minutes)
+4. Click on your service → "Settings" → You'll see your backend URL (e.g., `https://btms-backend-production.up.railway.app`)
 
-**Cost:** ~$10-50/month depending on provider
+### Step 8: Create First Admin User
+1. Go to your Railway backend URL + `/admin` (e.g., `https://your-app.up.railway.app/admin`)
+2. Create your first admin account
+3. Log in to the Strapi admin panel
 
-## 🔒 Security Configuration
+### Step 9: Configure API Permissions
+1. In Strapi admin, go to **Settings** → **Users & Permissions Plugin** → **Roles**
+2. Click on **Public**
+3. Under **Post**, check:
+   - ✓ `find`
+   - ✓ `findOne`
+4. Click **Save**
 
-### Strapi Security Headers
+---
 
-Add to `backend/config/middlewares.js`:
+## Part 3: Deploy Frontend to Vercel (Next.js)
+
+### Step 1: Create Vercel Account
+1. Go to https://vercel.com
+2. Click "Sign Up" → "Continue with GitHub"
+3. Authorize Vercel
+
+### Step 2: Import Project
+1. Click "Add New..." → "Project"
+2. Select your `btms-news-blog` repository
+3. Click "Import"
+
+### Step 3: Configure Build Settings
+Vercel should auto-detect Next.js, but verify:
+
+**Framework Preset**: Next.js
+**Root Directory**: `frontend`
+**Build Command**: `npm run build`
+**Output Directory**: `.next`
+**Install Command**: `npm install`
+
+### Step 4: Add Environment Variable
+1. In the "Configure Project" section, expand "Environment Variables"
+2. Add:
+
+**Key**: `NEXT_PUBLIC_STRAPI_URL`
+**Value**: Your Railway backend URL (e.g., `https://your-app.up.railway.app`)
+
+Click "Add"
+
+### Step 5: Deploy
+1. Click "Deploy"
+2. Wait 2-3 minutes for build to complete
+3. Vercel will give you a URL (e.g., `https://btms-news-blog.vercel.app`)
+
+### Step 6: Configure CORS in Strapi
+1. Go back to your Railway project
+2. Click on your Strapi service → "Variables"
+3. Add a new variable:
+
+**Key**: `CLIENT_URL`
+**Value**: Your Vercel URL (e.g., `https://btms-news-blog.vercel.app`)
+
+4. In your local project, update `backend/config/middlewares.js`:
 
 ```javascript
 module.exports = [
-  'strapi::logger',
   'strapi::errors',
-  'strapi::security',
-  'strapi::cors',
-  'strapi::poweredBy',
-  'strapi::query',
-  'strapi::body',
-  'strapi::session',
-  'strapi::favicon',
-  'strapi::public',
   {
     name: 'strapi::security',
     config: {
@@ -229,166 +243,142 @@ module.exports = [
         useDefaults: true,
         directives: {
           'connect-src': ["'self'", 'https:'],
-          'img-src': ["'self'", 'data:', 'blob:', 'https://your-frontend-domain.com'],
+          'img-src': ["'self'", 'data:', 'blob:', 'https:'],
           'media-src': ["'self'", 'data:', 'blob:'],
           upgradeInsecureRequests: null,
         },
       },
     },
   },
+  {
+    name: 'strapi::cors',
+    config: {
+      origin: ['http://localhost:3000', process.env.CLIENT_URL],
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
+      headers: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
+      keepHeaderOnError: true,
+    },
+  },
+  'strapi::poweredBy',
+  'strapi::logger',
+  'strapi::query',
+  'strapi::body',
+  'strapi::session',
+  'strapi::favicon',
+  'strapi::public',
 ];
 ```
 
-### Strapi CORS Configuration
-
-Add to `backend/config/middlewares.js`:
-
-```javascript
-{
-  name: 'strapi::cors',
-  config: {
-    origin: ['https://your-frontend-domain.com'],
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
-    headers: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
-    keepHeaderOnError: true,
-  },
-}
-```
-
-## 📊 Monitoring & Analytics
-
-### Backend Monitoring
-
-- **Strapi Cloud:** Built-in monitoring
-- **Self-hosted:** Use PM2 or Docker health checks
-
-### Frontend Analytics
-
-Add to `frontend/app/layout.tsx`:
-
-```typescript
-// Google Analytics (if required)
-import Script from 'next/script';
-
-// In <head>:
-<Script
-  src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"
-  strategy="afterInteractive"
-/>
-```
-
-## 🔄 Continuous Deployment
-
-### GitHub Actions Example
-
-Create `.github/workflows/deploy.yml`:
-
-```yaml
-name: Deploy
-
-on:
-  push:
-    branches: [main]
-
-jobs:
-  deploy-backend:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Deploy to Strapi Cloud
-        run: |
-          # Your Strapi Cloud deploy command
-          
-  deploy-frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Deploy to Vercel
-        run: |
-          npm install -g vercel
-          vercel --prod --token ${{ secrets.VERCEL_TOKEN }}
-```
-
-## 🔙 Backup Strategy
-
-### Database Backups
-
-**Strapi Cloud:** Automatic backups included
-
-**Self-hosted:**
+5. Commit and push:
 ```bash
-# Daily PostgreSQL backup
-pg_dump -U username dbname > backup_$(date +%Y%m%d).sql
-
-# Upload to S3
-aws s3 cp backup_$(date +%Y%m%d).sql s3://your-backup-bucket/
+git add backend/config/middlewares.js
+git commit -m "Configure CORS for production"
+git push origin main
 ```
 
-### Media Files
-
-If using local file uploads in Strapi:
-
-```bash
-# Backup public/uploads
-tar -czf uploads_backup_$(date +%Y%m%d).tar.gz backend/public/uploads
-
-# Upload to S3
-aws s3 cp uploads_backup_$(date +%Y%m%d).tar.gz s3://your-backup-bucket/
-```
-
-**Better:** Use Strapi AWS S3 plugin for media storage.
-
-## 🧪 Testing Before Production
-
-### Local Production Build Test
-
-**Backend:**
-```bash
-cd backend
-NODE_ENV=production npm run build
-NODE_ENV=production npm run start
-```
-
-**Frontend:**
-```bash
-cd frontend
-npm run build
-npm run start
-```
-
-Test everything works at production URLs.
-
-## 📞 Support
-
-### Strapi Resources
-- Docs: https://docs.strapi.io/
-- Forum: https://forum.strapi.io/
-- Discord: https://discord.strapi.io/
-
-### Next.js Resources
-- Docs: https://nextjs.org/docs
-- Deployment: https://nextjs.org/docs/deployment
-
-### Vercel Support
-- Docs: https://vercel.com/docs
-- Support: https://vercel.com/support
-
-## 🎉 Post-Deployment
-
-After deployment:
-
-1. [ ] Test all pages load correctly
-2. [ ] Test creating a new post in Strapi
-3. [ ] Verify new post appears on frontend
-4. [ ] Test all links work
-5. [ ] Check SSL certificate is valid
-6. [ ] Test on mobile devices
-7. [ ] Run accessibility checks
-8. [ ] Set up monitoring/alerts
-9. [ ] Document production URLs for team
-10. [ ] Train content designers on how to use Strapi
+Railway will auto-redeploy with new settings.
 
 ---
 
-**Need help?** Contact your development team or check the resources above.
+## Part 4: Add Custom Domain (Optional)
 
+### For Vercel (Frontend):
+1. Go to Vercel project → "Settings" → "Domains"
+2. Add your domain (e.g., `btms-news.defra.gov.uk`)
+3. Follow DNS instructions from Vercel
+
+### For Railway (Backend):
+1. Go to Railway project → Your service → "Settings" → "Domains"
+2. Click "Generate Domain" or add custom domain
+3. Update the `NEXT_PUBLIC_STRAPI_URL` in Vercel with new domain
+
+---
+
+## Part 5: Access Your Deployed Site
+
+### Frontend (Public Site):
+- **Vercel URL**: https://your-project.vercel.app
+- Users can view blog posts
+
+### Backend (Admin Panel):
+- **Railway URL**: https://your-app.up.railway.app/admin
+- Content editors log in here to add/edit posts
+
+---
+
+## Ongoing Management
+
+### For Content Editors (Non-Technical):
+1. Go to your Strapi admin URL
+2. Log in with credentials
+3. Add/edit posts through the GUI
+4. Changes appear on the frontend automatically
+
+### For Developers:
+1. Make code changes locally
+2. Push to GitHub
+3. Both Vercel and Railway auto-deploy on push to `main`
+
+---
+
+## Cost Breakdown
+
+| Service | Free Tier | Cost After Free |
+|---------|-----------|-----------------|
+| Vercel (Frontend) | 100GB bandwidth | $20/month |
+| Railway (Backend) | $5 credit/month | Pay per use (~$5-10/month) |
+| PostgreSQL | Included free | Included |
+| **Total** | **$0-5/month** | **~$5-10/month** |
+
+---
+
+## Troubleshooting
+
+### Frontend can't connect to backend:
+- Check `NEXT_PUBLIC_STRAPI_URL` is set correctly in Vercel
+- Verify CORS is configured in Strapi
+- Ensure Strapi API permissions are set to Public
+
+### Strapi admin not loading:
+- Check all environment variables are set in Railway
+- Verify PostgreSQL database is connected
+- Check Railway logs for errors
+
+### Build fails:
+- Check build logs in Vercel/Railway
+- Verify all dependencies are in `package.json`
+- Ensure Node version compatibility
+
+---
+
+## Security Best Practices
+
+1. **Never commit secrets** to GitHub
+2. **Use strong passwords** for admin accounts
+3. **Enable 2FA** on GitHub, Vercel, and Railway
+4. **Regularly update dependencies**: `npm audit fix`
+5. **Backup database** regularly (Railway offers automated backups)
+
+---
+
+## Support
+
+- Vercel Docs: https://vercel.com/docs
+- Railway Docs: https://docs.railway.app
+- Strapi Docs: https://docs.strapi.io
+- Next.js Docs: https://nextjs.org/docs
+
+---
+
+## Next Steps
+
+1. ✅ Deploy to Railway and Vercel
+2. ✅ Create admin account
+3. ✅ Add first blog post
+4. ✅ Share admin URL with content editors
+5. ✅ Set up custom domain (optional)
+6. ✅ Configure automated backups
+
+---
+
+**Congratulations!** Your BTMS blog is now live and accessible to everyone! 🎉

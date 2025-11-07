@@ -24,8 +24,8 @@ npm run dev
 ### Quick Post Template
 
 ```
-Title (70 chars): Redesigning the [thing] to improve [outcome]
-Slug: auto-generated
+Heading (70 chars): Redesigning the [thing] to improve [outcome]
+Slug: auto-generated from heading
 Description (250 chars): We found [problem]. This post explains [solution].
 Content: [Markdown - see below]
 Publish Date: Today
@@ -106,8 +106,8 @@ cd frontend && rm -rf .next
 ## 🎯 Content Types Reference
 
 ### Post (Main Content)
-- **title** - 70 chars max
-- **slug** - URL (auto)
+- **heading** - 70 chars max (main title)
+- **slug** - URL (auto-generated from heading)
 - **description** - 250 chars max
 - **content** - Markdown
 - **publishDate** - Date
@@ -157,7 +157,8 @@ GET http://localhost:1337/api/posts?filters[service][slug][$eq]=service-slug&pop
 
 Before publishing a post:
 
-- [ ] Title is descriptive and under 70 characters
+- [ ] Heading is descriptive and under 70 characters
+- [ ] Slug has auto-generated correctly from heading
 - [ ] Description explains the context (under 250 chars)
 - [ ] Content is written in plain English
 - [ ] All headings use sentence case
@@ -248,12 +249,12 @@ pg_dump dbname > backup.sql
 
 ## 🎓 Content Design Tips
 
-**Good Titles:**
+**Good Headings:**
 - ✅ "Simplifying the trader dashboard for mobile users"
 - ✅ "Adding auto-save to reduce data loss"
 - ✅ "Removing the postcode lookup to speed up forms"
 
-**Bad Titles:**
+**Bad Headings:**
 - ❌ "Dashboard changes"
 - ❌ "Updates"
 - ❌ "New feature"
@@ -277,4 +278,5 @@ pg_dump dbname > backup.sql
 ---
 
 **Print this out and keep it by your desk!** 📄
+
 
